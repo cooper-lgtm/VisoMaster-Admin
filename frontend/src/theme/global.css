@@ -1,0 +1,33 @@
+:root {
+  --brand: #0f8bff;
+  --bg: #f7f9fb;
+  --panel: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--brand);
+}
+
+.login-hero {
+  background: radial-gradient(circle at 20% 20%, rgba(15, 139, 255, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(255, 174, 79, 0.2), transparent 45%),
+    linear-gradient(135deg, #0f8bff 0%, #5c7cf7 100%);
+  color: #fff;
+}
