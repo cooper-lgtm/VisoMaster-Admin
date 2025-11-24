@@ -1,4 +1,18 @@
-import { Drawer, Form, Input, DatePicker, Select, Space, Button, Tag, Typography, Modal, message, Image as AntImage } from "antd";
+import {
+  Drawer,
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Space,
+  Button,
+  Typography,
+  Modal,
+  message,
+  Image as AntImage,
+  Row,
+  Col,
+} from "antd";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -78,22 +92,87 @@ const UserFormDrawer = ({ open, onClose, onSubmit, editing }: Props) => {
     if (loadingAssigned) return <Typography.Text type="secondary">加载中…</Typography.Text>;
     if (!assignedImages.length) return <Typography.Text type="secondary">尚未分配图片</Typography.Text>;
     return (
-      <Space size={[8, 8]} wrap>
+      <Row gutter={[8, 8]}>
         {assignedImages.map((img) => (
-          <Tag
-            key={img.id}
-            closable
-            onClose={(e) => {
-              e.preventDefault();
-              handleRemoveAssign(img);
-            }}
-            onClick={() => setPreviewImg(img)}
-            style={{ cursor: "pointer", marginBottom: 0 }}
-          >
-            {img.filename}
-          </Tag>
+          <Col span={8} key={img.id}>
+            <div
+              style={{
+                position: "relative",
+                border: "1px solid #f0f0f0",
+                borderRadius: 6,
+                padding: 6,
+                cursor: "pointer",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+              }}
+            >
+              {img.presigned_url ? (
+                <AntImage
+                  src={img.presigned_url}
+                  alt={img.filename}
+                  width="100%"
+                  height={80}
+                  style={{ objectFit: "cover", borderRadius: 4 }}
+                  preview={false}
+                  onClick={() => setPreviewImg(img)}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: 80,
+                    background: "#fafafa",
+                    borderRadius: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#999",
+                    fontSize: 12,
+                  }}
+                  onClick={() => setPreviewImg(img)}
+                >
+                  无预览
+                </div>
+              )}
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 12,
+                  lineHeight: "16px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={img.filename}
+              >
+                {img.filename}
+              </div>
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveAssign(img);
+                }}
+                style={{
+                  position: "absolute",
+                  top: 6,
+                  right: 6,
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  background: "rgba(0,0,0,0.55)",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 12,
+                  cursor: "pointer",
+                }}
+              >
+                ×
+              </div>
+            </div>
+          </Col>
         ))}
-      </Space>
+      </Row>
     );
   }, [assignedImages, editing, loadingAssigned]);
 
