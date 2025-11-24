@@ -31,7 +31,7 @@ const ImageUpload = ({ onUploaded }: Props) => {
   };
 
   return (
-    <Upload customRequest={handleUpload} showUploadList={false} accept="image/*">
+    <Upload customRequest={handleUpload} showUploadList={false} accept="image/*" multiple>
       <div
         style={{
           padding: "12px 16px",

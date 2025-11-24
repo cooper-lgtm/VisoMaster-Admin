@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,6 +6,7 @@ from .. import schemas
 from ..deps import get_current_admin, get_db
 from ..models import Image, User, UserImage
 from ..services import images as image_service
+from ..storage import generate_presigned_get_url
 
 router = APIRouter(prefix="/assignments", tags=["assignments"])
 
@@ -53,6 +54,7 @@ async def assign_images(
 @router.get("/users/{user_id}/images", response_model=list[schemas.ImageRead])
 async def list_images_for_user(
     user_id: int,
+    include_urls: bool = Query(False, description="Return presigned download URLs"),
     session: AsyncSession = Depends(get_db),
     _admin=Depends(get_current_admin),
 ):
@@ -63,6 +65,9 @@ async def list_images_for_user(
         .where(UserImage.user_id == user_id)
     )
     images = [row[1] for row in result.fetchall()]
+    if include_urls:
+        for img in images:
+            img.presigned_url = generate_presigned_get_url(img.key)
     return images
 
 
@@ -80,3 +85,14 @@ async def list_users_for_image(
     )
     users = [row[1] for row in result.fetchall()]
     return users
+
+
+@router.delete("/users/{user_id}/images/{image_id}", status_code=204)
+async def unassign_image_from_user(
+    user_id: int,
+    image_id: int,
+    session: AsyncSession = Depends(get_db),
+    _admin=Depends(get_current_admin),
+):
+    await image_service.remove_image_from_user(session, user_id, image_id)
+    return None

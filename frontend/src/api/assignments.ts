@@ -11,11 +11,17 @@ export const assignUsersToImage = async (imageId: number, userIds: number[], exp
 };
 
 export const fetchImagesForUser = async (userId: number): Promise<Image[]> => {
-  const { data } = await apiClient.get<Image[]>(`/assignments/users/${userId}/images`);
+  const { data } = await apiClient.get<Image[]>(`/assignments/users/${userId}/images`, {
+    params: { include_urls: true },
+  });
   return data;
 };
 
 export const fetchUsersForImage = async (imageId: number): Promise<User[]> => {
   const { data } = await apiClient.get<User[]>(`/assignments/images/${imageId}/users`);
   return data;
+};
+
+export const unassignImageFromUser = async (userId: number, imageId: number) => {
+  await apiClient.delete(`/assignments/users/${userId}/images/${imageId}`);
 };

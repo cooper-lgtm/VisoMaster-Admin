@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
-import AssignmentsPage from "../pages/Assignments/AssignmentsPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import ImagesPage from "../pages/Images/ImagesPage";
 import LoginPage from "../pages/Login/LoginPage";
@@ -37,7 +36,6 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: "users", element: <UsersPage /> },
       { path: "images", element: <ImagesPage /> },
-      { path: "assignments", element: <AssignmentsPage /> },
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },

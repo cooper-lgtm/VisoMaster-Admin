@@ -1,55 +1,94 @@
-import { DeleteOutlined, LinkOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Image as AntImage, Row, Space, Tag, Tooltip } from "antd";
+import { CheckCircleFilled, EyeOutlined } from "@ant-design/icons";
+import { Card, Checkbox, Col, Image as AntImage, Row } from "antd";
 import type { Image } from "../api/images";
 
 type Props = {
   data: Image[];
-  onDelete: (img: Image) => void;
+  selectedIds: number[];
+  onToggleSelect: (img: Image) => void;
+  onPreview: (img: Image) => void;
 };
 
-const ImageGrid = ({ data, onDelete }: Props) => {
+const ImageGrid = ({ data, selectedIds, onToggleSelect, onPreview }: Props) => {
   return (
     <Row gutter={[16, 16]}>
-      {data.map((img) => (
-        <Col xs={24} sm={12} md={8} lg={6} key={img.id}>
-          <Card
-            hoverable
-            cover={
-              img.presigned_url ? (
-                <AntImage
-                  src={img.presigned_url}
-                  alt={img.filename}
-                  style={{ height: 180, objectFit: "cover" }}
-                  preview={false}
-                />
-              ) : null
-            }
-            actions={[
-              <Tooltip key="open" title="预览链接">
-                <a href={img.presigned_url} target="_blank" rel="noreferrer">
-                  <LinkOutlined />
-                </a>
-              </Tooltip>,
-              <Tooltip key="delete" title="删除">
-                <Button type="text" danger icon={<DeleteOutlined />} onClick={() => onDelete(img)} />
-              </Tooltip>,
-            ]}
-          >
-            <Card.Meta
-              title={img.filename}
-              description={
-                <Space direction="vertical">
-                  <span>
-                    <Tag color="blue">{img.mime_type || "image"}</Tag>
-                    <Tag icon={<UserOutlined />}>{img.uploader_admin_id || "—"}</Tag>
-                  </span>
-                  <small>{img.key}</small>
-                </Space>
+      {data.map((img) => {
+        const selected = selectedIds.includes(img.id);
+        return (
+          <Col xs={24} sm={12} md={8} lg={6} key={img.id}>
+            <Card
+              hoverable
+              style={selected ? { borderColor: "#1677ff", boxShadow: "0 0 0 2px rgba(22,119,255,0.2)" } : {}}
+              onClick={() => onToggleSelect(img)}
+              cover={
+                <div style={{ position: "relative" }}>
+                  {img.presigned_url ? (
+                    <AntImage
+                      src={img.presigned_url}
+                      alt={img.filename}
+                      style={{ height: 200, objectFit: "cover", borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
+                      preview={false}
+                    />
+                  ) : null}
+                  <Checkbox
+                    checked={selected}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleSelect(img);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      left: 8,
+                      background: "rgba(255,255,255,0.9)",
+                      borderRadius: 12,
+                      padding: "2px 4px",
+                    }}
+                  />
+                  {img.presigned_url ? (
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onPreview(img);
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        background: "rgba(0,0,0,0.55)",
+                        color: "#fff",
+                        borderRadius: "50%",
+                        width: 28,
+                        height: 28,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <EyeOutlined />
+                    </div>
+                  ) : null}
+                  {selected && (
+                    <CheckCircleFilled
+                      style={{
+                        position: "absolute",
+                        bottom: 8,
+                        right: 8,
+                        color: "#1677ff",
+                        fontSize: 22,
+                        textShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                      }}
+                    />
+                  )}
+                </div>
               }
-            />
-          </Card>
-        </Col>
-      ))}
+            >
+              <Card.Meta title={img.filename} />
+            </Card>
+          </Col>
+        );
+      })}
     </Row>
   );
 };

@@ -34,6 +34,17 @@ async def delete_image(session: AsyncSession, image: Image) -> None:
     await session.commit()
 
 
+async def remove_image_from_user(session: AsyncSession, user_id: int, image_id: int) -> None:
+    result = await session.execute(
+        select(UserImage).where(UserImage.user_id == user_id, UserImage.image_id == image_id)
+    )
+    link = result.scalar_one_or_none()
+    if not link:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
+    await session.delete(link)
+    await session.commit()
+
+
 async def assign_image_to_users(
     session: AsyncSession, image: Image, payload: AssignUsersRequest, admin: Optional[Admin]
 ) -> None:

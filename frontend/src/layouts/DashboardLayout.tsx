@@ -14,7 +14,6 @@ const DashboardLayout = () => {
   const selectedKeys = useMemo(() => {
     if (location.pathname.startsWith("/users")) return ["users"];
     if (location.pathname.startsWith("/images")) return ["images"];
-    if (location.pathname.startsWith("/assignments")) return ["assignments"];
     return ["dashboard"];
   }, [location.pathname]);
 
@@ -29,7 +28,6 @@ const DashboardLayout = () => {
             { key: "dashboard", label: <Link to="/">仪表盘</Link> },
             { key: "users", label: <Link to="/users">用户管理</Link> },
             { key: "images", label: <Link to="/images">图片库</Link> },
-            { key: "assignments", label: <Link to="/assignments">分配</Link> },
           ]}
         />
       </Sider>

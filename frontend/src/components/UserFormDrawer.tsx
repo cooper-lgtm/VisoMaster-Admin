@@ -1,7 +1,10 @@
-import { Drawer, Form, Input, DatePicker, Select, Space, Button } from "antd";
+import { Drawer, Form, Input, DatePicker, Select, Space, Button, Tag, Typography, Modal, message, Image as AntImage } from "antd";
 import dayjs from "dayjs";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CreateUserDto, UpdateUserDto, User } from "../api/users";
+import { fetchImagesForUser, unassignImageFromUser } from "../api/assignments";
+import type { Image } from "../api/images";
 
 type Props = {
   open: boolean;
@@ -17,6 +20,22 @@ const statusOptions = [
 
 const UserFormDrawer = ({ open, onClose, onSubmit, editing }: Props) => {
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
+  const [previewImg, setPreviewImg] = useState<Image | null>(null);
+
+  const { data: assignedImages = [], isFetching: loadingAssigned } = useQuery({
+    queryKey: ["user-images", editing?.id],
+    queryFn: () => fetchImagesForUser(editing!.id),
+    enabled: !!editing,
+  });
+
+  const unassignMutation = useMutation({
+    mutationFn: ({ userId, imageId }: { userId: number; imageId: number }) => unassignImageFromUser(userId, imageId),
+    onSuccess: () => {
+      message.success("已移除分配");
+      queryClient.invalidateQueries({ queryKey: ["user-images", editing?.id] });
+    },
+  });
 
   useEffect(() => {
     if (editing) {
@@ -39,6 +58,44 @@ const UserFormDrawer = ({ open, onClose, onSubmit, editing }: Props) => {
     await onSubmit(payload);
     form.resetFields();
   };
+
+  const handleRemoveAssign = (img: Image) => {
+    if (!editing) return;
+    Modal.confirm({
+      title: `移除分配：${img.filename}?`,
+      onOk: async () => {
+        try {
+          await unassignMutation.mutateAsync({ userId: editing.id, imageId: img.id });
+        } catch (error: any) {
+          message.error(error.response?.data?.detail || "移除失败");
+        }
+      },
+    });
+  };
+
+  const assignedContent = useMemo(() => {
+    if (!editing) return null;
+    if (loadingAssigned) return <Typography.Text type="secondary">加载中…</Typography.Text>;
+    if (!assignedImages.length) return <Typography.Text type="secondary">尚未分配图片</Typography.Text>;
+    return (
+      <Space size={[8, 8]} wrap>
+        {assignedImages.map((img) => (
+          <Tag
+            key={img.id}
+            closable
+            onClose={(e) => {
+              e.preventDefault();
+              handleRemoveAssign(img);
+            }}
+            onClick={() => setPreviewImg(img)}
+            style={{ cursor: "pointer", marginBottom: 0 }}
+          >
+            {img.filename}
+          </Tag>
+        ))}
+      </Space>
+    );
+  }, [assignedImages, editing, loadingAssigned]);
 
   return (
     <Drawer
@@ -74,10 +131,23 @@ const UserFormDrawer = ({ open, onClose, onSubmit, editing }: Props) => {
         <Form.Item name="expires_at" label="到期时间">
           <DatePicker showTime style={{ width: "100%" }} />
         </Form.Item>
+        {editing ? (
+          <Form.Item label="已分配图片" colon={false}>
+            {assignedContent}
+          </Form.Item>
+        ) : null}
         <Form.Item name="notes" label="备注">
           <Input.TextArea rows={3} />
         </Form.Item>
       </Form>
+      <Modal open={!!previewImg} footer={null} onCancel={() => setPreviewImg(null)} width={900} centered>
+        {previewImg && (
+          <>
+            <AntImage src={previewImg.presigned_url} alt={previewImg.filename} style={{ width: "100%" }} />
+            <div style={{ marginTop: 8, fontWeight: 600 }}>{previewImg.filename}</div>
+          </>
+        )}
+      </Modal>
     </Drawer>
   );
 };
