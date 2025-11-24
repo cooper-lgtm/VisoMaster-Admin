@@ -40,12 +40,13 @@ export const requestUploadUrl = async (payload: UploadUrlRequest): Promise<Uploa
 };
 
 export const saveImageMetadata = async (payload: SaveImageDto): Promise<Image> => {
-  const { data } = await apiClient.post<Image>("/images", payload);
+  // Use trailing slash to avoid FastAPI redirect stripping auth header
+  const { data } = await apiClient.post<Image>("/images/", payload);
   return data;
 };
 
 export const fetchImages = async (): Promise<Image[]> => {
-  const { data } = await apiClient.get<Image[]>("/images", { params: { include_urls: true } });
+  const { data } = await apiClient.get<Image[]>("/images/", { params: { include_urls: true } });
   return data;
 };
 

@@ -28,12 +28,13 @@ export interface UpdateUserDto {
 }
 
 export const fetchUsers = async (): Promise<User[]> => {
-  const { data } = await apiClient.get<User[]>("/users");
+  // Use trailing slash to avoid FastAPI redirect that can drop auth header
+  const { data } = await apiClient.get<User[]>("/users/");
   return data;
 };
 
 export const createUser = async (payload: CreateUserDto): Promise<User> => {
-  const { data } = await apiClient.post<User>("/users", payload);
+  const { data } = await apiClient.post<User>("/users/", payload);
   return data;
 };
 
