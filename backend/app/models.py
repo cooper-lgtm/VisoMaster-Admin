@@ -53,7 +53,11 @@ class User(Base):
     extended_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     notes: Mapped[Optional[str]] = mapped_column(Text)
 
-    assignments: Mapped[List["UserImage"]] = relationship(back_populates="user")
+    assignments: Mapped[List["UserImage"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
 
 class Image(Base):
@@ -71,7 +75,11 @@ class Image(Base):
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     uploader_admin: Mapped[Optional[Admin]] = relationship(back_populates="images")
-    assignments: Mapped[List["UserImage"]] = relationship(back_populates="image")
+    assignments: Mapped[List["UserImage"]] = relationship(
+        back_populates="image",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     __table_args__ = (UniqueConstraint("bucket", "key", name="uq_image_bucket_key"),)
 
