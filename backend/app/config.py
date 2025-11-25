@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     s3_use_ssl: bool = Field(default=False)
     s3_presign_expire: int = Field(default=3600)
 
+    # Seed admin
+    seed_admin_username: Optional[str] = Field(default="admin")
+    seed_admin_password: Optional[str] = Field(default="admin123")
+    seed_admin_is_superadmin: bool = Field(default=True)
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
