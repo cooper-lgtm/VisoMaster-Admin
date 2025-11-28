@@ -1,8 +1,7 @@
 import { UploadOutlined } from "@ant-design/icons";
 import { Upload, message } from "antd";
-import axios from "axios";
 import type { RcFile, UploadRequestOption } from "rc-upload/lib/interface";
-import { requestUploadUrl, saveImageMetadata } from "../api/images";
+import { apiClient } from "../api/client";
 
 type Props = {
   onUploaded: () => void;
@@ -12,18 +11,14 @@ const ImageUpload = ({ onUploaded }: Props) => {
   const handleUpload = async (options: UploadRequestOption<any>) => {
     const file = options.file as RcFile;
     try {
-      const presigned = await requestUploadUrl({ filename: file.name, content_type: file.type });
-      await axios.put(presigned.url, file, { headers: { "Content-Type": file.type || "application/octet-stream" } });
-      await saveImageMetadata({
-        bucket: presigned.bucket,
-        key: presigned.key,
-        filename: file.name,
-        mime_type: file.type,
-        size_bytes: file.size,
+      const formData = new FormData();
+      formData.append("file", file);
+      const { data } = await apiClient.post("/images/upload-file", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       message.success("上传成功");
       onUploaded();
-      options.onSuccess && options.onSuccess({}, new XMLHttpRequest());
+      options.onSuccess && options.onSuccess(data, new XMLHttpRequest());
     } catch (error: any) {
       message.error(error.response?.data?.detail || "上传失败");
       options.onError && options.onError(error);

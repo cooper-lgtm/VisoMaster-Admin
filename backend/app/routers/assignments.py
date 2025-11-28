@@ -88,7 +88,8 @@ async def list_images_for_user(
     images = [row[1] for row in result.fetchall()]
     if include_urls:
         for img in images:
-            img.presigned_url = generate_presigned_get_url(img.key)
+            img.presigned_url = None
+            img.download_url = f"/api/images/{img.id}/download"
     return images
 
 

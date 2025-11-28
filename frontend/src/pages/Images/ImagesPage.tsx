@@ -148,7 +148,11 @@ const ImagesPage = () => {
       <Modal open={!!previewImg} onCancel={() => setPreviewImg(null)} footer={null} width={900} centered>
         {previewImg && (
           <>
-            <AntImage src={previewImg.presigned_url} alt={previewImg.filename} style={{ width: "100%" }} />
+            <AntImage
+              src={previewImg.download_url || previewImg.presigned_url}
+              alt={previewImg.filename}
+              style={{ width: "100%" }}
+            />
             <div style={{ marginTop: 8, fontWeight: 600 }}>{previewImg.filename}</div>
           </>
         )}

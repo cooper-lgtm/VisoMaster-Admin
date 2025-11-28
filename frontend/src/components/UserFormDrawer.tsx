@@ -105,9 +105,9 @@ const UserFormDrawer = ({ open, onClose, onSubmit, editing }: Props) => {
                 boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
               }}
             >
-              {img.presigned_url ? (
+              {(img.thumb_url || img.download_url || img.presigned_url) ? (
                 <AntImage
-                  src={img.presigned_url}
+                  src={img.thumb_url || img.download_url || img.presigned_url}
                   alt={img.filename}
                   width="100%"
                   height={80}
@@ -222,7 +222,11 @@ const UserFormDrawer = ({ open, onClose, onSubmit, editing }: Props) => {
       <Modal open={!!previewImg} footer={null} onCancel={() => setPreviewImg(null)} width={900} centered>
         {previewImg && (
           <>
-            <AntImage src={previewImg.presigned_url} alt={previewImg.filename} style={{ width: "100%" }} />
+            <AntImage
+              src={previewImg.download_url || previewImg.presigned_url}
+              alt={previewImg.filename}
+              style={{ width: "100%" }}
+            />
             <div style={{ marginTop: 8, fontWeight: 600 }}>{previewImg.filename}</div>
           </>
         )}

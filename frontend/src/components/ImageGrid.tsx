@@ -14,6 +14,8 @@ const ImageGrid = ({ data, selectedIds, onToggleSelect, onPreview }: Props) => {
     <Row gutter={[16, 16]}>
       {data.map((img) => {
         const selected = selectedIds.includes(img.id);
+        const coverSrc = img.thumb_url || img.download_url || img.presigned_url;
+        const previewSrc = img.download_url || img.presigned_url;
         return (
           <Col xs={24} sm={12} md={8} lg={6} key={img.id}>
             <Card
@@ -22,9 +24,9 @@ const ImageGrid = ({ data, selectedIds, onToggleSelect, onPreview }: Props) => {
               onClick={() => onToggleSelect(img)}
               cover={
                 <div style={{ position: "relative" }}>
-                  {img.presigned_url ? (
+                  {coverSrc ? (
                     <AntImage
-                      src={img.presigned_url}
+                      src={coverSrc}
                       alt={img.filename}
                       style={{ height: 200, objectFit: "cover", borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
                       preview={false}
@@ -45,7 +47,7 @@ const ImageGrid = ({ data, selectedIds, onToggleSelect, onPreview }: Props) => {
                       padding: "2px 4px",
                     }}
                   />
-                  {img.presigned_url ? (
+                  {previewSrc ? (
                     <div
                       onClick={(e) => {
                         e.stopPropagation();

@@ -11,6 +11,8 @@ export interface Image {
   uploader_admin_id?: number;
   created_at: string;
   presigned_url?: string;
+  download_url?: string;
+  thumb_url?: string;
 }
 
 export interface UploadUrlRequest {

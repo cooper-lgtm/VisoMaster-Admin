@@ -99,6 +99,8 @@ class ImageRead(ImageBase):
     deleted_at: Optional[datetime] = None
     assigned_count: Optional[int] = 0
     presigned_url: Optional[str] = None
+    download_url: Optional[str] = None
+    thumb_url: Optional[str] = None
 
     class Config:
         from_attributes = True
