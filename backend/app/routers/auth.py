@@ -26,7 +26,7 @@ async def admin_login(payload: schemas.AdminLoginRequest, session: AsyncSession 
     admin.last_login_at = datetime.now(timezone.utc)
     await session.commit()
     token = create_access_token(subject=admin.username, role="admin")
-    return schemas.TokenResponse(access_token=token)
+    return schemas.TokenResponse(access_token=token, user_id=admin.id)
 
 
 @router.post("/user/login", response_model=schemas.TokenResponse)
@@ -41,4 +41,4 @@ async def user_login(payload: schemas.UserLoginRequest, session: AsyncSession = 
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account expired")
 
     token = create_access_token(subject=user.username, role="user", expires_minutes=settings.jwt_expires_minutes)
-    return schemas.TokenResponse(access_token=token)
+    return schemas.TokenResponse(access_token=token, user_id=user.id)
